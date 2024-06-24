@@ -35,6 +35,7 @@ bool Title()
 			break;
 		case MENU::QUIT:
 			return false;
+			break;
 		}
 	}
 }

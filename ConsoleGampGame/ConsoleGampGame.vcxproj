@@ -130,12 +130,14 @@
     <ClInclude Include="Console.h" />
     <ClInclude Include="define.h" />
     <ClInclude Include="GameLogic.h" />
+    <ClInclude Include="GameOver.h" />
     <ClInclude Include="Single.h" />
     <ClInclude Include="Title.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="GameLogic.cpp" />
+    <ClCompile Include="GameOver.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Single.cpp" />
     <ClCompile Include="Title.cpp" />

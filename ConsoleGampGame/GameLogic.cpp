@@ -37,6 +37,11 @@ void Init(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& lin
 			player->shape[i][j] = tempShape[i][j];
 	}
 
+	player->isEasyLine = false;
+	player->isHardLine = false;
+	player->isInvincibility = false;
+	player->isReversal = false;
+
 	LINES initialLine = { { 0, 17 }, MAP_WIDTH };
 	linesVec.push_back(initialLine);
 }
