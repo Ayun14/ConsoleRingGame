@@ -11,6 +11,7 @@ int main()
 	char arrMap[MAP_HEIGHT][MAP_WIDTH] = {};
 	PLAYER player;
     vector<LINES> linesVec;
+	int score = 0;
 
 	Init(arrMap, &player, linesVec);
 
@@ -18,16 +19,27 @@ int main()
 		return 0;
 	else
 	{
-		while (!isGameOver)
+		while (!LineCollisionCheck(&player, linesVec))
 		{
-			Update(arrMap, &player, linesVec);
+			Update(arrMap, &player, linesVec, &score);
 			Gotoxy(0, 0);
-			Render(arrMap, &player, linesVec);
+			Render(arrMap, &player, linesVec, score);
 			FrameSync(60);
 		}
 	}
 
 	system("cls");
-	Gotoxy(MAP_WIDTH / 2, MAP_HEIGHT / 2);
-	cout << "Game Over! Final Score: " << score << endl;
+	cout << "\n\n";
+
+	int prevmode = _setmode(_fileno(stdout), _O_U16TEXT);
+	wcout << L"    ██████╗  █████╗ ███╗   ███╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗\n";
+	wcout << L"   ██╔════╝ ██╔══██╗████╗ ████║██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗\n";
+	wcout << L"   ██║  ███╗███████║██╔████╔██║█████╗      ██║   ██║██║   ██║█████╗  ██████╔╝\n";
+	wcout << L"   ██║   ██║██╔══██║██║╚██╔╝██║██╔══╝      ██║   ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗\n";
+	wcout << L"   ╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗    ╚██████╔╝ ╚████╔╝ ███████╗██║  ██║\n";
+	wcout << L"    ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝     ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝\n";
+	int curmode = _setmode(_fileno(stdout), prevmode);
+
+	Gotoxy(MAP_WIDTH / 3, MAP_HEIGHT / 4);
+	cout << "Score: " << score << endl;
 }

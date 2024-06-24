@@ -2,9 +2,6 @@
 const int MAP_WIDTH = 80;
 const int MAP_HEIGHT = 40;
 
-static int score = 0;
-static bool isGameOver = false;
-
 typedef struct _tagpos
 {
 	int x;
@@ -41,9 +38,9 @@ typedef struct _taglines
 #include<vector>
 using std::vector;
 void Init(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec);
-void Update(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec);
+void Update(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec, int* score);
 void MoveUpdate(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player);
 void LineUpdate(char arrMap[MAP_HEIGHT][MAP_WIDTH], vector<LINES>& linesVec);
-void LineCollisionCheck(PPLAYER player, vector<LINES>& linesVec);
-void Render(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec);
+bool LineCollisionCheck(PPLAYER player, vector<LINES>& linesVec);
+void Render(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec, int score);
 void FrameSync(unsigned int framerate);

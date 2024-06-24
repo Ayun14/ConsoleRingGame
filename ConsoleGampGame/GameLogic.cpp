@@ -41,20 +41,19 @@ void Init(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& lin
 	linesVec.push_back(initialLine);
 }
 
-void Update(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec)
+void Update(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec, int* score)
 {
 	// Plyer
 	MoveUpdate(arrMap, player);
 
 	// Line
 	LineUpdate(arrMap, linesVec);
-	//LineCollisionCheck(player, linesVec);
 
 	// Score
 	static clock_t lastTime = clock();
 	if (clock() - lastTime >= CLOCKS_PER_SEC)
 	{
-		++score;
+		++*score;
 		lastTime = clock();
 	}
 }
@@ -119,12 +118,32 @@ void LineUpdate(char arrMap[MAP_HEIGHT][MAP_WIDTH], vector<LINES>& linesVec)
 	}
 }
 
-void LineCollisionCheck(PPLAYER player, vector<LINES>& linesVec)
+bool LineCollisionCheck(PPLAYER player, vector<LINES>& linesVec)
 {
+	for (const auto& lines : linesVec)
+	{
+		if (lines.pos.x + lines.length < player->pos.x || lines.pos.x > player->pos.x + 20)
+			continue;
 
+		for (int i = 0; i < lines.length; ++i)
+		{
+			int lineX = lines.pos.x + i;
+			int lineY = lines.pos.y;
+
+			if ((lineX >= player->pos.x && lineX <= player->pos.x + 20) &&
+				(lineY == player->pos.y || lineY == player->pos.y + 7))
+			{
+				Sleep(1000);
+
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
-void Render(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec)
+void Render(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec, int score)
 {
 	system("cls");
 
