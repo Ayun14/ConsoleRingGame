@@ -3,8 +3,9 @@ void TitleRender();
 bool Title();
 enum class MENU
 {
-	START, QUIT
+	START, INFO, QUIT
 };
+void InfoRender();
 MENU MenuRender();
 enum class KEY
 {

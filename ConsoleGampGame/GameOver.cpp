@@ -42,6 +42,9 @@ bool Retry(int bestScore, int score)
 			// 애니메이션 등등..
 			return true;
 			break;
+		case MENU::INFO:
+			InfoRender();
+			break;
 		case MENU::QUIT:
 			return false;
 			break;

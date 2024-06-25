@@ -10,14 +10,17 @@
 #include "console.h"
 #pragma comment(lib, "winmm.lib")
 
-void Init(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec)
+void Init(PPLAYER player, vector<LINES>& linesVec)
 {
 	system("title RingRunner | mode con cols=80 lines=40");
 	CursorVis(false, 1);
 	LockResize();
 
 	srand((unsigned int)time(NULL));
-	
+
+	moveTime = 35;
+	lastSpawnLineLength = 0;
+
 	player->pos = { MAP_WIDTH / 4, MAP_HEIGHT / 3 };
 
 	wchar_t tempShape[8][21] = {
@@ -39,20 +42,51 @@ void Init(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& lin
 
 	player->isEasyLine = false;
 	player->isHardLine = false;
-	player->isInvincibility = false;
-	player->isReversal = false;
 
 	LINES initialLine = { { 0, 17 }, MAP_WIDTH };
 	linesVec.push_back(initialLine);
 }
 
-void Update(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec, int* score)
+void Update(PPLAYER player, vector<LINES>& linesVec, vector<ITEM>& itemVec, int* score)
 {
 	// Plyer
-	MoveUpdate(arrMap, player);
+	MoveUpdate(player);
 
 	// Line
-	LineUpdate(arrMap, linesVec);
+	LineUpdate(linesVec);
+
+	// Item
+	ItemUpdate(linesVec, itemVec);
+	ItemCollisionCheck(player, itemVec, score);
+
+	if (player->isEasyLine)
+	{
+		clock_t lastTime = clock();
+
+		int orginMoveTime = moveTime;
+		int slowMoveTime = 55;
+		moveTime = slowMoveTime;
+
+		if (clock() - lastTime >= 5000)
+		{
+			moveTime = orginMoveTime;
+			player->isEasyLine = false;
+		}
+	}
+	else if (player->isHardLine)
+	{
+		clock_t lastTime = clock();
+
+		int orginMoveTime = moveTime;
+		int fastMoveTime = 15;
+		moveTime = fastMoveTime;
+
+		if (clock() - lastTime >= 5000)
+		{
+			moveTime = orginMoveTime;
+			player->isHardLine = false;
+		}
+	}
 
 	// Score
 	static clock_t lastTime = clock();
@@ -63,10 +97,10 @@ void Update(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& l
 	}
 }
 
-void MoveUpdate(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player)
-{	
-	// Player 움직임 구현
+void MoveUpdate(PPLAYER player)
+{
 	player->newPos = player->pos;
+
 	if (GetAsyncKeyState(VK_UP) & 0x8000 && player->pos.y > 0)
 		--player->newPos.y;
 	if (GetAsyncKeyState(VK_DOWN) & 0x8000 && player->pos.y < MAP_HEIGHT - 8)
@@ -75,12 +109,10 @@ void MoveUpdate(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player)
 	player->pos = player->newPos;
 }
 
-void LineUpdate(char arrMap[MAP_HEIGHT][MAP_WIDTH], vector<LINES>& linesVec)
+void LineUpdate(vector<LINES>& linesVec)
 {
-	static int lastSpawnLineLength = 0;
-
 	static clock_t lastSpawnTime = clock();
-	if (clock() - lastSpawnTime >= 60)
+	if (clock() - lastSpawnTime >= moveTime)
 	{
 		lastSpawnTime = clock();
 
@@ -102,14 +134,14 @@ void LineUpdate(char arrMap[MAP_HEIGHT][MAP_WIDTH], vector<LINES>& linesVec)
 		if (linesVec.empty())
 		{
 			newLineY = rand() % (MAP_HEIGHT - 4) + 2;
-			newLinesLength = rand() % 6 + 6; // 6 ~ 11
+			newLinesLength = rand() % 6 + 5; // 5 ~ 10
 		}
 		else
 		{
 			int lastLineY = linesVec.back().pos.y;
 			newLineY = lastLineY + (rand() % 3 - 1); // -1, 0, 1
 
-			newLinesLength = rand() % 6 + 6; // 6 ~ 11
+			newLinesLength = rand() % 6 + 5; // 5 ~ 10
 
 			if (newLineY <= 0) newLineY = 1;
 			if (newLineY >= MAP_HEIGHT) newLineY = MAP_HEIGHT - 2;
@@ -135,11 +167,14 @@ bool LineCollisionCheck(PPLAYER player, vector<LINES>& linesVec)
 			int lineX = lines.pos.x + i;
 			int lineY = lines.pos.y;
 
-			if ((lineX >= player->pos.x && lineX <= player->pos.x + 20) &&
+			if ((lineX >= player->pos.x + 6 && lineX <= player->pos.x + 13) &&
 				(lineY == player->pos.y || lineY == player->pos.y + 7))
 			{
-				Sleep(1000);
-
+				Gotoxy(lineX, lineY);
+				SetColor((int)COLOR::LIGHT_RED);
+				cout << "▒";
+				SetColor((int)COLOR::WHITE);
+				Sleep(1200);
 				return true;
 			}
 		}
@@ -148,7 +183,122 @@ bool LineCollisionCheck(PPLAYER player, vector<LINES>& linesVec)
 	return false;
 }
 
-void Render(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec, int score)
+void ItemUpdate(vector<LINES>& linesVec, vector<ITEM>& itemVec)
+{
+	// item move
+	static clock_t lastMoveTime = clock();
+	if (clock() - lastMoveTime >= moveTime)
+	{
+		for (auto& item : itemVec)
+			item.pos.x--;
+
+		if (!itemVec.empty())
+			if (itemVec.front().pos.x < 0) itemVec.erase(itemVec.begin());
+
+		lastMoveTime = clock();
+	}
+
+	// item spawn
+	static clock_t lastSpawnTime = clock();
+	if (clock() - lastSpawnTime >= 7000)
+	{
+		lastSpawnTime = clock();
+
+		int spawnPersent = rand() % 10;
+		if (spawnPersent < 9)
+		{
+			spawnPersent = rand() % 4;
+			ITEMTYPE spawnItemType = ITEMTYPE::NONE;
+			if (spawnPersent == 0)
+				spawnItemType = ITEMTYPE::EASYLINE;
+			else if (spawnPersent == 1)
+				spawnItemType = ITEMTYPE::HARDLINE;
+			else if (spawnPersent == 2)
+				spawnItemType = ITEMTYPE::SCOREUP;
+			else
+				spawnItemType = ITEMTYPE::SCOREDOWN;
+
+			int randY = 0;
+			while (true)
+			{
+				randY = linesVec.back().pos.y + (rand() % 9 - 4);
+				if (randY != linesVec.back().pos.y) break;
+			}
+			 
+			POS itemPos = { MAP_WIDTH - 1, randY };
+			itemVec.push_back({ itemPos, spawnItemType });
+		}
+	}
+}
+
+void ItemCollisionCheck(PPLAYER player, vector<ITEM>& itemVec, int *score)
+{
+	auto it = itemVec.begin();
+	while (it != itemVec.end())
+	{
+		ITEM& item = *it;
+		if (item.pos.x < player->pos.x || item.pos.x > player->pos.x + 20)
+		{
+			++it;
+			continue;
+		}
+
+		if (player->pos.y == item.pos.y ||
+			player->pos.y + 7 == item.pos.y)
+		{
+			if (player->pos.x + 13 != item.pos.x)
+			{
+				++it;
+				continue;
+			}
+		}
+		else if (player->pos.y + 1 == item.pos.y ||
+			player->pos.y + 6 == item.pos.y)
+		{
+			if (player->pos.x + 15 != item.pos.x)
+			{
+				++it;
+				continue;
+			}
+		}
+		else if (player->pos.y + 2 == item.pos.y ||
+			player->pos.y + 5 == item.pos.y)
+		{
+			if (player->pos.x + 17 != item.pos.x)
+			{
+				++it;
+				continue;
+			}
+		}
+		else if (player->pos.y + 3 == item.pos.y ||
+			player->pos.y + 4 == item.pos.y)
+		{
+			if (player->pos.x + 18 != item.pos.x)
+			{
+				++it;
+				continue;
+			}
+		}
+		else
+		{
+			++it;
+			continue;
+		}
+
+		if (item.itemType == ITEMTYPE::EASYLINE)
+			player->isEasyLine = true;
+		else if (item.itemType == ITEMTYPE::HARDLINE)
+			player->isHardLine = true;
+		else if (item.itemType == ITEMTYPE::SCOREUP)
+			*score += 10;
+		else if (item.itemType == ITEMTYPE::SCOREDOWN)
+			*score -= 10;
+
+		it = itemVec.erase(it);
+	}
+}
+
+void Render(PPLAYER player, vector<LINES>& linesVec, vector<ITEM>& itemVec, int score)
 {
 	system("cls");
 
@@ -206,9 +356,34 @@ void Render(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& l
 	}
 	int curmode = _setmode(_fileno(stdout), prevmode);
 
+	// Render Item
+	for (const auto& item : itemVec)
+	{
+		Gotoxy(item.pos.x, item.pos.y);
+		if (item.itemType == ITEMTYPE::EASYLINE)
+		{
+			SetColor((int)COLOR::LIGHT_BLUE);
+			cout << "◆";
+		}
+		else if (item.itemType == ITEMTYPE::HARDLINE)
+		{
+			SetColor((int)COLOR::LIGHT_RED);
+			cout << "◈";
+		}
+		else if (item.itemType == ITEMTYPE::SCOREUP)
+		{
+			SetColor((int)COLOR::LIGHT_BLUE);
+			cout << "▲";
+		}
+		else if (item.itemType == ITEMTYPE::SCOREDOWN)
+		{
+			SetColor((int)COLOR::LIGHT_RED);
+			cout << "▼";
+		}
+	}
+
 	SetColor((int)COLOR::WHITE);
 }
-
 
 void FrameSync(unsigned int framerate)
 {

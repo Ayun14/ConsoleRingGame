@@ -9,14 +9,14 @@
 
 int main()
 {
-	char arrMap[MAP_HEIGHT][MAP_WIDTH] = {};
 	PLAYER player;
 	vector<LINES> linesVec;
+	vector<ITEM> itemVec;
 
 	int score = 0;
 	int bestScore = 0;
 
-	Init(arrMap, &player, linesVec);
+	Init(&player, linesVec);
 
 	if (!Title())
 		return 0;
@@ -24,13 +24,13 @@ int main()
 	{
 		while (true)
 		{
-			Init(arrMap, &player, linesVec);
+			Init(&player, linesVec);
 
 			while (!LineCollisionCheck(&player, linesVec))
 			{
-				Update(arrMap, &player, linesVec, &score);
+				Update(&player, linesVec, itemVec, &score);
 				Gotoxy(0, 0);
-				Render(arrMap, &player, linesVec, score);
+				Render(&player, linesVec, itemVec, score);
 				FrameSync(60);
 			}
 
@@ -42,6 +42,7 @@ int main()
 
 			score = 0;
 			linesVec.clear();
+			itemVec.clear();
 		}
 	}
 }

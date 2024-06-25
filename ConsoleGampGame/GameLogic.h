@@ -2,6 +2,9 @@
 const int MAP_WIDTH = 80;
 const int MAP_HEIGHT = 40;
 
+static int moveTime; // 선, 아이템 움직이는 시간(스피드)
+static int lastSpawnLineLength = 0; // 마지막으로 생성된 선의 길이
+
 typedef struct _tagpos
 {
 	int x;
@@ -22,25 +25,38 @@ typedef struct _tagplayer
 
 	// 버프 아이템
 	bool isEasyLine; // 선 난이도 낮아짐
-	bool isInvincibility; // 무적
 	// 디버프 아이템
 	bool isHardLine; // 선 난이도 높아짐
-	bool isReversal; // 입력키 반전
-	
+
 }PLAYER, * PPLAYER;
 
 typedef struct _taglines
 {
 	POS pos; // 맨앞 위치
 	int length; // 선 길이
+
 } LINES, *PLINES;
+
+enum class ITEMTYPE
+{
+	EASYLINE, HARDLINE, SCOREUP, SCOREDOWN, NONE
+};
+
+typedef struct _tagitem
+{
+	POS pos;
+	ITEMTYPE itemType; // 선 길이
+
+} ITEM, *PITEM;
 
 #include<vector>
 using std::vector;
-void Init(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec);
-void Update(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec, int* score);
-void MoveUpdate(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player);
-void LineUpdate(char arrMap[MAP_HEIGHT][MAP_WIDTH], vector<LINES>& linesVec);
+void Init(PPLAYER player, vector<LINES>& linesVec);
+void Update(PPLAYER player, vector<LINES>& linesVec, vector<ITEM>& itemVec, int* score);
+void MoveUpdate(PPLAYER player);
+void LineUpdate(vector<LINES>& linesVec);
 bool LineCollisionCheck(PPLAYER player, vector<LINES>& linesVec);
-void Render(char arrMap[MAP_HEIGHT][MAP_WIDTH], PPLAYER player, vector<LINES>& linesVec, int score);
+void ItemUpdate(vector<LINES>& linesVec, vector<ITEM>& itemVec);
+void ItemCollisionCheck(PPLAYER player, vector<ITEM>& itemVec, int *score);
+void Render(PPLAYER player, vector<LINES>& linesVec, vector<ITEM>& itemVec, int score);
 void FrameSync(unsigned int framerate);
