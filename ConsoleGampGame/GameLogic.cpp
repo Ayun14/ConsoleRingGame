@@ -1,5 +1,5 @@
 ﻿#include<Windows.h>
-#include<mmsystem.h>
+//#include<mmsystem.h>
 #include<algorithm>
 #include <conio.h>
 #include <ctime>
@@ -7,17 +7,15 @@
 #include<fcntl.h>
 #include<io.h>
 #include "GameLogic.h"
-#include "console.h"
-#pragma comment(lib, "winmm.lib")
+#include "Console.h"
+//#pragma comment(lib, "winmm.lib")
 
 void Init(PPLAYER player, vector<LINES>& linesVec)
 {
+	PlayBgm(TEXT("bgm.mp3"), 300);
 	system("title RingRunner | mode con cols=80 lines=40");
 	CursorVis(false, 1);
 	LockResize();
-
-	srand((unsigned int)time(NULL));
-
 	moveTime = 35;
 	lastSpawnLineLength = 0;
 
@@ -174,6 +172,8 @@ bool LineCollisionCheck(PPLAYER player, vector<LINES>& linesVec)
 				SetColor((int)COLOR::LIGHT_RED);
 				cout << "▒";
 				SetColor((int)COLOR::WHITE);
+				//PlayEffect(TEXT("gameOver.wav"), 200);
+				PlaySound(TEXT("gameOver.wav"), NULL,SND_FILENAME | SND_ASYNC);
 				Sleep(1200);
 				return true;
 			}
@@ -285,6 +285,8 @@ void ItemCollisionCheck(PPLAYER player, vector<ITEM>& itemVec, int *score)
 			continue;
 		}
 
+		PlaySound(TEXT("get_Item.wav"), NULL, SND_FILENAME | SND_ASYNC);
+		//PlayEffect(TEXT("get_Item.wav"), 100);
 		if (item.itemType == ITEMTYPE::EASYLINE)
 			player->isEasyLine = true;
 		else if (item.itemType == ITEMTYPE::HARDLINE)

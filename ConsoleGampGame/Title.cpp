@@ -3,12 +3,13 @@
 #include<io.h>
 #include<Windows.h>
 #include "Title.h"
-#include "console.h"
+#include "Console.h"
 #include "GameLogic.h"
 using namespace std;
 
 void TitleRender()
 {
+	PlayBgm(TEXT("TitleBgm.mp3"), 300);
 	int prevmode = _setmode(_fileno(stdout), _O_U16TEXT);
 	SetColor((int)COLOR::LIGHT_YELLOW);
 	wcout << L"   _____________                    ________" << endl;
@@ -33,7 +34,8 @@ bool Title()
 		switch (menu)
 		{
 		case MENU::START:
-			// 애니메이션 등등..
+			EnterAnimation();
+			PlayBgm(TEXT("bgm.mp3"),300);
 			return true;
 			break;
 		case MENU::INFO:
@@ -44,6 +46,42 @@ bool Title()
 			break;
 		}
 	}
+}
+
+void EnterAnimation()
+{
+	COORD Resolution = GetConsoleResolution();
+	int width = Resolution.X;
+	int height = Resolution.Y;
+	int animtime = 20;
+
+	SetColor((int)COLOR::BLACK, (int)COLOR::LIGHT_YELLOW);
+	for (int i = 0; i < width; i+=2)
+	{
+		for (int j = 0; j < height; j++)
+		{
+			Gotoxy(i, j); //세로방향으로 텍스트 출력 
+			cout << "  ";
+		}
+
+		Sleep(animtime);
+	}
+
+	Sleep(30);
+	SetColor((int)COLOR::WHITE, (int)COLOR::BLACK);
+	for (int i = width; i > 0; i -= 2)
+	{
+		for (int j = 0; j < height; j++)
+		{
+			Gotoxy(i, j); //세로방향으로 텍스트 출력 
+			cout << "  ";
+		}
+
+		Sleep(animtime);
+	}
+
+	SetColor((int)COLOR::WHITE, (int)COLOR::BLACK);
+	system("cls");
 }
 
 void InfoRender()
@@ -110,6 +148,7 @@ MENU MenuRender()
 		{
 			if (currentSelection > 0)
 			{
+				PlaySound(TEXT("menuSelect.wav"), NULL, SND_FILENAME | SND_ASYNC);
 				Gotoxy(x - 3, y + currentSelection);
 				cout << "  ";
 				currentSelection--;
@@ -123,6 +162,7 @@ MENU MenuRender()
 		{
 			if (currentSelection < 2)
 			{
+				PlaySound(TEXT("menuSelect.wav"), NULL, SND_FILENAME | SND_ASYNC);
 				Gotoxy(x - 3, y + currentSelection);
 				cout << "  ";
 				currentSelection++;
@@ -133,6 +173,7 @@ MENU MenuRender()
 		}
 		break;
 		case KEY::SPACE:
+			PlaySound(TEXT("menuSelect.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			if (currentSelection == 0)
 				return MENU::START;
 			else if (currentSelection == 1)
@@ -144,7 +185,7 @@ MENU MenuRender()
 }
 
 KEY KeyController()
-{
+{	
 	if (GetAsyncKeyState(VK_UP) & 0x8000)
 		return KEY::UP;
 	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
@@ -154,3 +195,7 @@ KEY KeyController()
 
 	return KEY::FAIL;
 }
+
+
+
+

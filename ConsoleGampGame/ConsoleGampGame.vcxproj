@@ -131,6 +131,7 @@
     <ClInclude Include="define.h" />
     <ClInclude Include="GameLogic.h" />
     <ClInclude Include="GameOver.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Title.h" />
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +140,17 @@
     <ClCompile Include="GameOver.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Title.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ConsoleGampGame.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="bgm.mp3" />
+    <Media Include="gameOver.wav" />
+    <Media Include="GameOverBgm.mp3" />
+    <Media Include="get_Item.wav" />
+    <Media Include="menuSelect.wav" />
+    <Media Include="TitleBgm.mp3" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

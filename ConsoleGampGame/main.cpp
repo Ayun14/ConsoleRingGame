@@ -3,24 +3,26 @@
 #include<io.h>
 #include "GameLogic.h"
 #include "Title.h"
-#include "console.h"
+#include "Console.h"
 #include "GameOver.h"
 #include <iostream>
 
 int main()
 {
+	srand((unsigned int)time(NULL));
+
 	PLAYER player;
 	vector<LINES> linesVec;
 	vector<ITEM> itemVec;
 
 	int score = 0;
 	int bestScore = 0;
-
+	PlayBgm(TEXT("TitleBgm.mp3"), 300);
 	Init(&player, linesVec);
 
 	if (!Title())
 		return 0;
-	else
+	else 
 	{
 		while (true)
 		{

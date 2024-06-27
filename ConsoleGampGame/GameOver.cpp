@@ -4,7 +4,7 @@
 #include<Windows.h>
 #include "GameOver.h"
 #include "Title.h"
-#include "console.h"
+#include "Console.h"
 #include "GameLogic.h"
 using namespace std;
 
@@ -12,6 +12,7 @@ using namespace std;
 void GameOverRender()
 {
 	system("cls");
+	PlayBgm(TEXT("GameOverBgm.mp3"), 300);
 
 	int prevmode = _setmode(_fileno(stdout), _O_U16TEXT);
 	wcout << L"    ██████╗  █████╗ ███╗   ███╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗\n";

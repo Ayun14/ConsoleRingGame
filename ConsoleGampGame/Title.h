@@ -12,3 +12,4 @@ enum class KEY
 	UP, DOWN, SPACE, FAIL
 };
 KEY KeyController();
+void EnterAnimation();

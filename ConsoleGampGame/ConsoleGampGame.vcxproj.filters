@@ -30,6 +30,9 @@
     <ClInclude Include="GameOver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -47,5 +50,30 @@
     <ClCompile Include="GameOver.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ConsoleGampGame.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="get_Item.wav">
+      <Filter>리소스 파일</Filter>
+    </Media>
+    <Media Include="bgm.mp3">
+      <Filter>리소스 파일</Filter>
+    </Media>
+    <Media Include="gameOver.wav">
+      <Filter>리소스 파일</Filter>
+    </Media>
+    <Media Include="TitleBgm.mp3">
+      <Filter>리소스 파일</Filter>
+    </Media>
+    <Media Include="GameOverBgm.mp3">
+      <Filter>리소스 파일</Filter>
+    </Media>
+    <Media Include="menuSelect.wav">
+      <Filter>리소스 파일</Filter>
+    </Media>
   </ItemGroup>
 </Project>
