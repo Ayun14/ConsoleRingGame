@@ -1,11 +1,8 @@
 ﻿#include <Windows.h>
-#include<fcntl.h>
-#include<io.h>
 #include "GameLogic.h"
 #include "Title.h"
 #include "Console.h"
 #include "GameOver.h"
-#include <iostream>
 
 int main()
 {

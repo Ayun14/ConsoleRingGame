@@ -4,7 +4,6 @@
 #include<Windows.h>
 #include "Title.h"
 #include "Console.h"
-#include "GameLogic.h"
 using namespace std;
 
 void TitleRender()
@@ -46,42 +45,6 @@ bool Title()
 			break;
 		}
 	}
-}
-
-void EnterAnimation()
-{
-	COORD Resolution = GetConsoleResolution();
-	int width = Resolution.X;
-	int height = Resolution.Y;
-	int animtime = 20;
-
-	SetColor((int)COLOR::BLACK, (int)COLOR::LIGHT_YELLOW);
-	for (int i = 0; i < width; i+=2)
-	{
-		for (int j = 0; j < height; j++)
-		{
-			Gotoxy(i, j); //세로방향으로 텍스트 출력 
-			cout << "  ";
-		}
-
-		Sleep(animtime);
-	}
-
-	Sleep(30);
-	SetColor((int)COLOR::WHITE, (int)COLOR::BLACK);
-	for (int i = width; i > 0; i -= 2)
-	{
-		for (int j = 0; j < height; j++)
-		{
-			Gotoxy(i, j); //세로방향으로 텍스트 출력 
-			cout << "  ";
-		}
-
-		Sleep(animtime);
-	}
-
-	SetColor((int)COLOR::WHITE, (int)COLOR::BLACK);
-	system("cls");
 }
 
 void InfoRender()
@@ -130,14 +93,14 @@ MENU MenuRender()
 	int x = Resolution.X / 2.5;
 	int y = Resolution.Y / 2.5;
 	int originy = y;
-	Gotoxy(x - 3, y);  // 메뉴의 시작점에 커서를 놓습니다.
+	Gotoxy(x - 3, y);
 	cout << "▶ 게임 시작";
 	Gotoxy(x, y + 1);
 	cout << "게임 정보";
 	Gotoxy(x, y + 2);
 	cout << "종료 하기";
 
-	int currentSelection = 0; // 현재 선택된 메뉴를 추적합니다.
+	int currentSelection = 0; // 현재 선택된 메뉴
 
 	while (true)
 	{
@@ -196,6 +159,37 @@ KEY KeyController()
 	return KEY::FAIL;
 }
 
+void EnterAnimation()
+{
+	COORD Resolution = GetConsoleResolution();
+	int width = Resolution.X;
+	int height = Resolution.Y;
+	int animtime = 20;
 
+	SetColor((int)COLOR::BLACK, (int)COLOR::LIGHT_YELLOW);
+	for (int i = 0; i < width; i += 2)
+	{
+		for (int j = 0; j < height; j++)
+		{
+			Gotoxy(i, j); //세로방향으로 텍스트 출력 
+			cout << "  ";
+		}
 
+		Sleep(animtime);
+	}
 
+	Sleep(30);
+	SetColor((int)COLOR::WHITE, (int)COLOR::BLACK);
+	for (int i = width; i > 0; i -= 2)
+	{
+		for (int j = 0; j < height; j++)
+		{
+			Gotoxy(i, j); //세로방향으로 텍스트 출력 
+			cout << "  ";
+		}
+
+		Sleep(animtime);
+	}
+
+	SetColor((int)COLOR::WHITE, (int)COLOR::BLACK);
+}

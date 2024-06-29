@@ -1,4 +1,10 @@
-﻿#pragma once
+﻿
+#pragma once
+#include<vector>
+#include<ctime>
+using std::vector;
+using namespace std;
+
 const int MAP_WIDTH = 80;
 const int MAP_HEIGHT = 40;
 
@@ -20,20 +26,19 @@ typedef struct _tagplayer
 {
 	POS pos;
 	POS newPos;
-	int playerSizes[4] = { 8, 12, 16, 17};
 	wchar_t shape[8][21];
 
-	// 버프 아이템
 	bool isEasyLine; // 선 난이도 낮아짐
-	// 디버프 아이템
+	clock_t easyLineStartTime;
 	bool isHardLine; // 선 난이도 높아짐
+	clock_t hardLineStartTime;
 
 }PLAYER, * PPLAYER;
 
 typedef struct _taglines
 {
-	POS pos; // 맨앞 위치
-	int length; // 선 길이
+	POS pos;
+	int length;
 
 } LINES, *PLINES;
 
@@ -45,12 +50,10 @@ enum class ITEMTYPE
 typedef struct _tagitem
 {
 	POS pos;
-	ITEMTYPE itemType; // 선 길이
+	ITEMTYPE itemType;
 
 } ITEM, *PITEM;
 
-#include<vector>
-using std::vector;
 void Init(PPLAYER player, vector<LINES>& linesVec);
 void Update(PPLAYER player, vector<LINES>& linesVec, vector<ITEM>& itemVec, int* score);
 void MoveUpdate(PPLAYER player);

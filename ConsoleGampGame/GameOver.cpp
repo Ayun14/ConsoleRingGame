@@ -5,7 +5,6 @@
 #include "GameOver.h"
 #include "Title.h"
 #include "Console.h"
-#include "GameLogic.h"
 using namespace std;
 
 
@@ -40,7 +39,7 @@ bool Retry(int bestScore, int score)
 		switch (menu)
 		{
 		case MENU::START:
-			// 애니메이션 등등..
+			EnterAnimation();
 			return true;
 			break;
 		case MENU::INFO:

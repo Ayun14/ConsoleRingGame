@@ -1,8 +1,6 @@
 #include<Windows.h>
-#include <random>
 #include<string>
 #include<Digitalv.h>
-#include <mmsystem.h>
 #include "Console.h"
 #pragma comment(lib, "winmm.lib")
 

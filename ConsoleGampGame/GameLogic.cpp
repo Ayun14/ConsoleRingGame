@@ -1,14 +1,10 @@
 ﻿#include<Windows.h>
-//#include<mmsystem.h>
-#include<algorithm>
-#include <conio.h>
-#include <ctime>
+#include<ctime>
 #include <cstdlib>
 #include<fcntl.h>
 #include<io.h>
 #include "GameLogic.h"
 #include "Console.h"
-//#pragma comment(lib, "winmm.lib")
 
 void Init(PPLAYER player, vector<LINES>& linesVec)
 {
@@ -57,33 +53,32 @@ void Update(PPLAYER player, vector<LINES>& linesVec, vector<ITEM>& itemVec, int*
 	ItemUpdate(linesVec, itemVec);
 	ItemCollisionCheck(player, itemVec, score);
 
+	static int originMoveTime = moveTime;
+	static int easyMoveTime = 70;
+	static int hardMoveTime = 20;
+
+	// isEasyLine 효과 적용
 	if (player->isEasyLine)
 	{
-		clock_t lastTime = clock();
-
-		int orginMoveTime = moveTime;
-		int slowMoveTime = 55;
-		moveTime = slowMoveTime;
-
-		if (clock() - lastTime >= 5000)
+		if ((clock() - player->easyLineStartTime) >= 5000)
 		{
-			moveTime = orginMoveTime;
+			moveTime = originMoveTime;
 			player->isEasyLine = false;
 		}
+		else
+			moveTime = easyMoveTime;
 	}
-	else if (player->isHardLine)
+
+	// isHardLine 효과 적용
+	if (player->isHardLine)
 	{
-		clock_t lastTime = clock();
-
-		int orginMoveTime = moveTime;
-		int fastMoveTime = 15;
-		moveTime = fastMoveTime;
-
-		if (clock() - lastTime >= 5000)
+		if ((clock() - player->hardLineStartTime) >= 5000)
 		{
-			moveTime = orginMoveTime;
+			moveTime = originMoveTime;
 			player->isHardLine = false;
 		}
+		else
+			moveTime = hardMoveTime;
 	}
 
 	// Score
@@ -128,21 +123,21 @@ void LineUpdate(vector<LINES>& linesVec)
 
 		int newLineY;
 		int newLinesLength;
-		LINES newLines; // vector에 넣을 Line들을 가지고 있는 Lines
+		LINES newLines;
 		if (linesVec.empty())
 		{
 			newLineY = rand() % (MAP_HEIGHT - 4) + 2;
-			newLinesLength = rand() % 6 + 5; // 5 ~ 10
+			newLinesLength = rand() % 3 + 4; // 4 ~ 6
 		}
 		else
 		{
 			int lastLineY = linesVec.back().pos.y;
 			newLineY = lastLineY + (rand() % 3 - 1); // -1, 0, 1
 
-			newLinesLength = rand() % 6 + 5; // 5 ~ 10
+			newLinesLength = rand() % 3 + 4; // 4 ~ 6
 
 			if (newLineY <= 0) newLineY = 1;
-			if (newLineY >= MAP_HEIGHT) newLineY = MAP_HEIGHT - 2;
+			if (newLineY >= MAP_HEIGHT - 1) newLineY = MAP_HEIGHT - 2;
 		}
 
 		newLines.pos = { MAP_WIDTH - 2, newLineY };
@@ -172,7 +167,6 @@ bool LineCollisionCheck(PPLAYER player, vector<LINES>& linesVec)
 				SetColor((int)COLOR::LIGHT_RED);
 				cout << "▒";
 				SetColor((int)COLOR::WHITE);
-				//PlayEffect(TEXT("gameOver.wav"), 200);
 				PlaySound(TEXT("gameOver.wav"), NULL,SND_FILENAME | SND_ASYNC);
 				Sleep(1200);
 				return true;
@@ -202,10 +196,9 @@ void ItemUpdate(vector<LINES>& linesVec, vector<ITEM>& itemVec)
 	static clock_t lastSpawnTime = clock();
 	if (clock() - lastSpawnTime >= 7000)
 	{
-		lastSpawnTime = clock();
 
 		int spawnPersent = rand() % 10;
-		if (spawnPersent < 9)
+		if (spawnPersent < 6)
 		{
 			spawnPersent = rand() % 4;
 			ITEMTYPE spawnItemType = ITEMTYPE::NONE;
@@ -225,9 +218,11 @@ void ItemUpdate(vector<LINES>& linesVec, vector<ITEM>& itemVec)
 				if (randY != linesVec.back().pos.y) break;
 			}
 			 
-			POS itemPos = { MAP_WIDTH - 1, randY };
+			POS itemPos = { MAP_WIDTH - 2, randY };
 			itemVec.push_back({ itemPos, spawnItemType });
 		}
+
+		lastSpawnTime = clock();
 	}
 }
 
@@ -237,16 +232,11 @@ void ItemCollisionCheck(PPLAYER player, vector<ITEM>& itemVec, int *score)
 	while (it != itemVec.end())
 	{
 		ITEM& item = *it;
-		if (item.pos.x < player->pos.x || item.pos.x > player->pos.x + 20)
-		{
-			++it;
-			continue;
-		}
 
 		if (player->pos.y == item.pos.y ||
 			player->pos.y + 7 == item.pos.y)
 		{
-			if (player->pos.x + 13 != item.pos.x)
+			if (player->pos.x + 6 > item.pos.x || player->pos.x + 13 < item.pos.x)
 			{
 				++it;
 				continue;
@@ -255,7 +245,7 @@ void ItemCollisionCheck(PPLAYER player, vector<ITEM>& itemVec, int *score)
 		else if (player->pos.y + 1 == item.pos.y ||
 			player->pos.y + 6 == item.pos.y)
 		{
-			if (player->pos.x + 15 != item.pos.x)
+			if (player->pos.x + 4 > item.pos.x || player->pos.x + 15 < item.pos.x)
 			{
 				++it;
 				continue;
@@ -264,7 +254,7 @@ void ItemCollisionCheck(PPLAYER player, vector<ITEM>& itemVec, int *score)
 		else if (player->pos.y + 2 == item.pos.y ||
 			player->pos.y + 5 == item.pos.y)
 		{
-			if (player->pos.x + 17 != item.pos.x)
+			if (player->pos.x + 2 > item.pos.x || player->pos.x + 17 < item.pos.x)
 			{
 				++it;
 				continue;
@@ -273,7 +263,7 @@ void ItemCollisionCheck(PPLAYER player, vector<ITEM>& itemVec, int *score)
 		else if (player->pos.y + 3 == item.pos.y ||
 			player->pos.y + 4 == item.pos.y)
 		{
-			if (player->pos.x + 18 != item.pos.x)
+			if (player->pos.x + 1 > item.pos.x || player->pos.x + 18 < item.pos.x)
 			{
 				++it;
 				continue;
@@ -286,11 +276,16 @@ void ItemCollisionCheck(PPLAYER player, vector<ITEM>& itemVec, int *score)
 		}
 
 		PlaySound(TEXT("get_Item.wav"), NULL, SND_FILENAME | SND_ASYNC);
-		//PlayEffect(TEXT("get_Item.wav"), 100);
 		if (item.itemType == ITEMTYPE::EASYLINE)
+		{
 			player->isEasyLine = true;
+			player->easyLineStartTime = clock();
+		}
 		else if (item.itemType == ITEMTYPE::HARDLINE)
+		{
 			player->isHardLine = true;
+			player->hardLineStartTime = clock();
+		}
 		else if (item.itemType == ITEMTYPE::SCOREUP)
 			*score += 10;
 		else if (item.itemType == ITEMTYPE::SCOREDOWN)
